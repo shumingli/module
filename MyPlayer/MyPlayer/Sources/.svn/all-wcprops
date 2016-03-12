@@ -1,0 +1,215 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/haibao/!svn/ver/13/trunk/Third/Sources
+END
+SCRecorderFocusView.m
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecorderFocusView.m
+END
+SCRecorder.h
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecorder.h
+END
+SCRecorderFocusTargetView.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecorderFocusTargetView.h
+END
+SCFilterGroup.m
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCFilterGroup.m
+END
+SCRecorder.m
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecorder.m
+END
+SCRecorderFocusTargetView.m
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecorderFocusTargetView.m
+END
+SCFilter.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCFilter.h
+END
+SCFilter.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCFilter.m
+END
+SCAudioVideoRecorder-Prefix.pch
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCAudioVideoRecorder-Prefix.pch
+END
+CIImageRenderer.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/CIImageRenderer.h
+END
+SCArchivedVector.h
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCArchivedVector.h
+END
+SCSampleBufferHolder.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCSampleBufferHolder.h
+END
+SCSwipeableFilterView.h
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCSwipeableFilterView.h
+END
+SCImageView.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCImageView.h
+END
+SCArchivedVector.m
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCArchivedVector.m
+END
+SCSampleBufferHolder.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCSampleBufferHolder.m
+END
+SCFilterSelectorViewInternal.h
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCFilterSelectorViewInternal.h
+END
+SCVideoPlayerView.h
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCVideoPlayerView.h
+END
+CIImageRendererUtils.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/CIImageRendererUtils.h
+END
+SCFilterSelectorView.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCFilterSelectorView.h
+END
+SCSwipeableFilterView.m
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCSwipeableFilterView.m
+END
+SCRecordSession.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecordSession.h
+END
+SCImageView.m
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCImageView.m
+END
+SCAudioTools.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCAudioTools.h
+END
+SCVideoPlayerView.m
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCVideoPlayerView.m
+END
+CIImageRendererUtils.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/CIImageRendererUtils.m
+END
+SCAssetExportSession.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCAssetExportSession.h
+END
+SCFilterSelectorView.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCFilterSelectorView.m
+END
+SCRecordSession.m
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecordSession.m
+END
+SCAudioTools.m
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCAudioTools.m
+END
+SCAssetExportSession.m
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCAssetExportSession.m
+END
+SCPlayer.h
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCPlayer.h
+END
+SCRecorderFocusView.h
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCRecorderFocusView.h
+END
+SCPlayer.m
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCPlayer.m
+END
+SCFilterGroup.h
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/haibao/!svn/ver/13/trunk/Third/Sources/SCFilterGroup.h
+END
