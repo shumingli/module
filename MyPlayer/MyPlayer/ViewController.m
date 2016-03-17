@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "MyPlayerView.h"
+#import <MediaPlayer/MediaPlayer.h>
 
 #define SCreenWidth [[UIScreen mainScreen] bounds].size.width
 #define SCreenHeight [[UIScreen mainScreen] bounds].size.height
@@ -18,15 +19,25 @@
     BOOL _startSpeed;  //开始拖动精度条
     BOOL _isPause;
     
+    CGPoint _panGestureBeginPoint;
+    CGFloat _panGestureBeginTime;
+    CGFloat _panGestureBeginAudioVolume;
+    PVDirection _touchDirection;  //手指滑动方向
 }
 
 @end
 
 @implementation ViewController
 
+- (BOOL)prefersStatusBarHidden
+{
+    return YES;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
+    _touchDirection = PVDirectionNone;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
     
     [self addMyPlayerView];
@@ -74,53 +85,54 @@
 }
 //AVPlayerItemDidPlayToEndTimeNotification
 - (void)addMyPlayerView{
-    self.url = [NSURL URLWithString:@"http://7xj11m.com1.z0.glb.clouddn.com/2016-01-16_569a131f0d3e8.mp4"];
+    self.url = [NSURL URLWithString:[NSString stringWithFormat:@"http://7xj11m.com1.z0.glb.clouddn.com/2016-01-14_56974386138b7.mp4"]];
     
     _myPlayerView = [[MyPlayerView alloc] initWithFrame:CGRectMake(0, 0, SCreenWidth, SCreenHeight) withUrl:self.url];
     _myPlayerView.delegate = self;
     [self.view addSubview:_myPlayerView];
     
-    [_myPlayerView.playerItem addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil];// 监听status属性
-    [_myPlayerView.playerItem addObserver:self forKeyPath:@"loadedTimeRanges" options:NSKeyValueObservingOptionNew context:nil];// 监听loadedTimeRanges属性
+    [_myPlayerView.player.currentItem addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:nil];// 监听status属性
+    [_myPlayerView.player.currentItem addObserver:self forKeyPath:@"loadedTimeRanges" options:NSKeyValueObservingOptionNew context:nil];// 监听loadedTimeRanges属性
 }
 
 //视频总时间
 - (CGFloat)getTotalSecond{
-    CGFloat totalSecond =  CMTimeGetSeconds(_myPlayerView.playerItem.duration);
+    CGFloat totalSecond =  CMTimeGetSeconds(_myPlayerView.player.currentItem.duration);
     return totalSecond;
 }
 //当前播放时间
 - (CGFloat)getCurrentSecond{
-    CGFloat currentSecond = CMTimeGetSeconds(_myPlayerView.playerItem.currentTime);
+    CGFloat currentSecond = CMTimeGetSeconds(_myPlayerView.player.currentItem.currentTime);
     return currentSecond;
 }
 //计算缓冲
 - (NSTimeInterval)availableDuration {
-    NSArray *loadedTimeRanges = [_myPlayerView.playerItem loadedTimeRanges];
+    NSArray *loadedTimeRanges = [_myPlayerView.player.currentItem loadedTimeRanges];
     CMTimeRange timeRange = [loadedTimeRanges.firstObject CMTimeRangeValue];// 获取缓冲区域
     Float64 startSeconds = CMTimeGetSeconds(timeRange.start);
     Float64 durationSeconds = CMTimeGetSeconds(timeRange.duration);
     NSTimeInterval result = startSeconds + durationSeconds;// 计算缓冲总进度
     return result;
 }
-
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+//    NSLog(@"tttttttt------ %@",keyPath);
     AVPlayerItem *playerItem = (AVPlayerItem *)object;
     if ([keyPath isEqualToString:@"status"]) {
         if ([playerItem status] == AVPlayerStatusReadyToPlay) {
             NSLog(@"AVPlayerStatusReadyToPlay");
             _totalTime = [self getTotalSecond];
+            [_myPlayerView.player play];
         } else if ([playerItem status] == AVPlayerStatusFailed) {
-            NSLog(@"AVPlayerStatusFailed");
+            NSLog(@"AVPlayerStatusFailed ------- %@ ",[playerItem error]);
+            NSLog(@"AVPlayerStatusFailed22 ------- %@",[playerItem errorLog]);
         }
     } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
         NSTimeInterval timeInterval = [self availableDuration];// 计算缓冲进度
-        NSLog(@"loadedTimeRanges:%f",timeInterval);
+//        NSLog(@"loadedTimeRanges:%f",timeInterval);
         NSTimeInterval totalInterval = [self getTotalSecond];
         [_myPlayerView.loadedProgress setValue:timeInterval/totalInterval animated:YES];
     }
 }
-
 - (NSString *)convertTime:(NSInteger)second{
     if (second < 0) {
         second = 0;
@@ -131,15 +143,39 @@
     return [NSString stringWithFormat:@"%02ld:%02ld:%02ld",(long)hours, (long)minutes, (long)seconds];
 }
 #pragma 协议方法
-- (void)setPlayerSeekToTime{
-    CMTime time = _myPlayerView.playerItem.currentTime;
-    NSTimeInterval secondScale = _totalTime * _myPlayerView.currentProgress.value;
-    _myPlayerView.curTimeLabel.text = [NSString stringWithFormat:@"%@",[self convertTime:secondScale]];
-    CMTimeValue value = time.timescale * secondScale;
-    time.value = value;
 
-    [_myPlayerView.playerItem seekToTime:time];
+- (void)player:(SCPlayer*)player didPlay:(CMTime)currentTime loopsCount:(NSInteger)loopsCount{
+    CGFloat currentSecond = [self getCurrentSecond];
+    CGFloat totalSecond = [self getTotalSecond];
+    _myPlayerView.curTimeLabel.text = [NSString stringWithFormat:@"%@",[self convertTime:currentSecond]];
+    _myPlayerView.totalTimeLabel.text = [NSString stringWithFormat:@"%@",[self convertTime:totalSecond]];
+    if (!_startSpeed) {
+        CGFloat progress = currentSecond/totalSecond;
+        _myPlayerView.currentProgress.value = progress;
+    }
 }
+- (void)player:(SCPlayer *)player didChangeItem:(AVPlayerItem*)item{
+    
+}
+//播放结束回调
+- (void)player:(SCPlayer *)player didReachEndForItem:(AVPlayerItem *)item{
+    [_myPlayerView changeToPlayBtn];
+    [_myPlayerView.player pause];
+}
+
+- (void)setPlayerSeekToTime{
+    NSTimeInterval secondScale = _totalTime * _myPlayerView.currentProgress.value;
+    [self setPlayerSeekToTimeByTimerInterval:secondScale];
+}
+
+- (void)setPlayerSeekToTimeByTimerInterval:(NSTimeInterval)timeInterval{
+    CMTime time = _myPlayerView.player.currentItem.currentTime;
+    _myPlayerView.curTimeLabel.text = [NSString stringWithFormat:@"%@",[self convertTime:timeInterval]];
+    CMTimeValue value = time.timescale * timeInterval;
+    time.value = value;
+    [_myPlayerView.player.currentItem seekToTime:time];
+}
+
 - (void)pauseBtnClick:(UIButton *)sender{
     [self checkPauseOrPlay];
 }
@@ -148,7 +184,6 @@
     if (!_isPause) { //判断是否在暂停状态
         [_myPlayerView.player pause];
     }
-    
 }
 //快进
 - (void)changeValue:(UISlider *)slider{
@@ -161,7 +196,7 @@
     }
 }
 - (void)checkPauseOrPlay{
-    if ([_myPlayerView.player isPlaying]) {
+    if ([_myPlayerView.player rate]>0.0f) {
         [_myPlayerView.player pause];
         [_myPlayerView changeToPlayBtn];
         _isPause = YES;
@@ -175,24 +210,70 @@
 - (void)pauClick:(UITapGestureRecognizer *)e{
     [self checkPauseOrPlay];
 }
-- (void)player:(SCPlayer*)player didPlay:(CMTime)currentTime loopsCount:(NSInteger)loopsCount{
-    CGFloat currentSecond = [self getCurrentSecond];
-    CGFloat totalSecond = [self getTotalSecond];
-    _myPlayerView.curTimeLabel.text = [NSString stringWithFormat:@"%@",[self convertTime:currentSecond]];
-    _myPlayerView.totalTimeLabel.text = [NSString stringWithFormat:@"%@",[self convertTime:totalSecond]];
-    if (!_startSpeed) {
-        CGFloat progress = currentSecond/totalSecond;
-        _myPlayerView.currentProgress.value = progress;
+
+- (void)touchScreen:(UIPanGestureRecognizer *)panGestureRecognizer{
+    CGPoint point = [panGestureRecognizer translationInView:_myPlayerView.bgView];
+    switch (panGestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:{
+            _panGestureBeginPoint = point;
+            _panGestureBeginTime = [self getCurrentSecond];
+            
+            NSLog(@"_panGestureBeginPoint = %lf  %lf",point.x,point.y);
+            _panGestureBeginAudioVolume = [_myPlayerView getVolume];
+            NSLog(@"_panGestureBeginAudioVolume = %lf  ",_panGestureBeginAudioVolume);
+        }
+            break;
+        case UIGestureRecognizerStateChanged:{
+            float offsetX = point.x - _panGestureBeginPoint.x;
+            float offsetY = _panGestureBeginPoint.y - point.y;
+            float ret = fabsf(offsetX) - fabsf(offsetY);
+            if (_touchDirection == PVDirectionNone) {
+                if (ret > 0) {
+                    _touchDirection = PVDirectionX;
+                }else if (ret < 0){
+                    _touchDirection = PVDirectionY;
+                }
+            }else{
+                if (_touchDirection == PVDirectionX) {
+                    _myPlayerView.timeTipView.hidden = NO;
+                    CGFloat second = offsetX * 0.1;
+                    CGFloat moveScecond = second + _panGestureBeginTime;
+                    if (moveScecond < 0.0f) {
+                        moveScecond = 0.0f;
+                    }else if (moveScecond > [self getTotalSecond]){
+                        moveScecond = [self getTotalSecond];
+                    }
+                    NSString *ttime = [self convertTime:moveScecond];
+                    _myPlayerView.speedTime.text = ttime;
+                    [self setPlayerSeekToTimeByTimerInterval:moveScecond];
+                }else{
+                    CGFloat vol1 = offsetY/200;
+                    CGFloat volume = vol1 + _panGestureBeginAudioVolume;
+                    if (volume < 0.0f) {
+                        volume = 0.0f;
+                    }else if (volume > 1.0f){
+                        volume = 1.0f;
+                    }
+                    [_myPlayerView setVolume:volume];
+                }
+            }
+        }
+            break;
+        case UIGestureRecognizerStateEnded:{
+            if (_touchDirection == PVDirectionX) {
+                _myPlayerView.timeTipView.hidden = YES;
+            }else if (_touchDirection == PVDirectionY) {
+            
+            }
+            _touchDirection = PVDirectionNone;
+        }
+            break;
+        default:
+            break;
     }
 }
-- (void)player:(SCPlayer *)player didChangeItem:(AVPlayerItem*)item{
 
-}
-//播放结束回调
-- (void)player:(SCPlayer *)player didReachEndForItem:(AVPlayerItem *)item{
-    [_myPlayerView changeToPlayBtn];
-    [_myPlayerView.player pause];
-}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -200,3 +281,11 @@
 }
 
 @end
+
+
+
+
+
+
+
+

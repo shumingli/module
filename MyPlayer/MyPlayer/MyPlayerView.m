@@ -16,15 +16,18 @@
 
 @interface MyPlayerView() {
     UIButton *_pauseBtn;
+    UIButton *_fullScreenBtn;
     UIView *_tapView;
     UIImageView *_playImgView;
     
     PlayerView *_playerView;
+    MPVolumeView *_volumeView;
+    UISlider *_volumeViewSlider;
     NSString *_totalTime;
     
-    UITapGestureRecognizer *tap;
+    UITapGestureRecognizer *_tap;
+    UIPanGestureRecognizer *_panGen;
     
-    UILabel *_line;
     UIView *_coverView;
     UIVisualEffectView *_visualEffectView;
 }
@@ -79,13 +82,36 @@
     [self addProgressView];
     [self addSliderView];
     [self addGenstureRec];
-
     [self addBigPlay];
-    
     [self addSpeedTimeTip];
-    
     [self addCacheTipLabel];
+    [self addVolumeView];
 }
+
+- (void)addVolumeView{
+    _volumeView = [[MPVolumeView alloc] init];
+    _volumeViewSlider = nil;
+    for (UIView *view in [_volumeView subviews]){
+        if ([view.class.description isEqualToString:@"MPVolumeSlider"]){
+            _volumeViewSlider = (UISlider*)view;
+            break;
+        }
+    }
+}
+- (CGFloat)getVolume{
+    return _volumeViewSlider.value;
+}
+- (void)setVolume:(CGFloat)volume{
+    // retrieve system volume
+    float systemVolume = _volumeViewSlider.value;
+    NSLog(@"systemVolumesystemVolume ---- %lf",systemVolume);
+    // change system volume, the value is between 0.0f and 1.0f
+    [_volumeViewSlider setValue:volume animated:NO];
+    // send UI control event to make the change effect right now.
+    [_volumeViewSlider sendActionsForControlEvents:UIControlEventTouchUpInside];
+}
+
+
 - (void)addCacheTipLabel{
     _cacheTipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
     _cacheTipLabel.font=[UIFont boldSystemFontOfSize:12];
@@ -122,14 +148,6 @@
 }
 
 - (void)addTimeLabel{
-//    UILabel *line =[[UILabel alloc]initWithFrame:CGRectMake(_curTimeLabel.frame.origin.x+_curTimeLabel.frame.size.width,_curTimeLabel.frame.origin.y,5,height)];
-//    line.text=@"/";
-//    line.backgroundColor = [UIColor clearColor];
-//    line.textColor = [UIColor whiteColor];
-//    line.textAlignment = NSTextAlignmentCenter;
-//    line.font=[UIFont boldSystemFontOfSize:10];
-//    [_bgView addSubview:line];
-//    _line = line;
     [self addCurTimeLabel];
     [self addTotalTimeLabel];
 }
@@ -197,13 +215,16 @@
 }
 
 - (void)addGenstureRec{
-    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, 100, self.frame.size.width, self.frame.size.height-200)];
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, 50, self.frame.size.width, self.frame.size.height-100)];
     v.backgroundColor = [UIColor clearColor];
     [_bgView addSubview:v];
     _tapView = v;
 
-    tap = [[UITapGestureRecognizer alloc] init];
-    [v addGestureRecognizer:tap];
+    _tap = [[UITapGestureRecognizer alloc] init];
+    [v addGestureRecognizer:_tap];
+    
+    _panGen = [[UIPanGestureRecognizer alloc] init];
+    [v addGestureRecognizer:_panGen];
 }
 
 - (void)changeToPlayBtn{
@@ -227,7 +248,8 @@
     _delegate = delegate;
     _player.delegate = delegate;
   
-    [tap addTarget:_delegate action:@selector(pauClick:)];
+    [_tap addTarget:_delegate action:@selector(pauClick:)];
+    [_panGen addTarget:_delegate action:@selector(touchScreen:)];
 }
 
 #pragma 播放器 start
@@ -263,7 +285,7 @@
     CGRect rect1 = _pauseBtn.frame;
     _pauseBtn.frame = CGRectMake(10,size.height - 10 -rect1.size.height ,rect1.size.width,rect1.size.height);
     
-    _tapView.frame = CGRectMake(0, 100, size.width, size.height-200);
+    _tapView.frame = CGRectMake(0, 50, size.width, size.height-100);
     CGRect prect = _playImgView.frame;
     _playImgView.frame = CGRectMake((size.width-prect.size.width)/2, (size.height-prect.size.height)/2, prect.size.width, prect.size.height);
     
@@ -278,13 +300,36 @@
     _loadedProgress.frame = rect; //loadedProgress
     _currentProgress.frame = _loadedProgress.frame;
     
-   
-
-
     _timeTipView.frame = CGRectMake((size.width-_timeTipView.frame.size.width)/2.0, (size.height-_timeTipView.frame.size.height)/2-100, _timeTipView.frame.size.width, _timeTipView.frame.size.height);
     _cacheTipLabel.frame = CGRectMake(0, 0, size.width, size.height);
     
 }
 
+//全屏按钮 没用
+/*
+- (void)addFullScreenBtn{
+    UIImage *norImage = [UIImage imageNamed:@"fullscreen.png"];
+    UIImage *selImage = [UIImage imageNamed:@"fullscreen.png"];
+    
+    _fullScreenBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+    _fullScreenBtn.frame=CGRectMake(SCreenWidth-BTN_WIDTH-10, _pauseBtn.frame.origin.y,BTN_WIDTH,BTN_HEIGHT);
+    [_fullScreenBtn setImage:norImage forState:UIControlStateNormal];
+    [_fullScreenBtn setImage:selImage forState:UIControlStateHighlighted];
+    [_fullScreenBtn addTarget:_delegate action:@selector(fullScreenClick:) forControlEvents:UIControlEventTouchUpInside];
+    [_bgView addSubview:_fullScreenBtn];
+}
+- (void)changeToFullScreen{
+    UIImage *norImage = [UIImage imageNamed:@"fullscreen.png"];
+    UIImage *selImage = [UIImage imageNamed:@"fullscreen.png"];
+    [_fullScreenBtn setImage:norImage forState:UIControlStateNormal];
+    [_fullScreenBtn setImage:selImage forState:UIControlStateHighlighted];
+}
+- (void)changeToSmallScreen{
+    UIImage *norImage = [UIImage imageNamed:@"smallscreen.png"];
+    UIImage *selImage = [UIImage imageNamed:@"smallscreen.png"];
+    [_fullScreenBtn setImage:norImage forState:UIControlStateNormal];
+    [_fullScreenBtn setImage:selImage forState:UIControlStateHighlighted];
+}
+*/
 
 @end

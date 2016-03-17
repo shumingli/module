@@ -12,10 +12,13 @@
 @protocol PlayerViewDelegate <NSObject,SCPlayerDelegate>
 @required
 - (void)pauseBtnClick:(UIButton *)sender;
+//- (void)fullScreenClick:(UIButton *)sender;
+
 - (void)startDragSlider:(UISlider *)slider;
 - (void)endDragSlider:(UISlider *)slider;
 - (void)changeValue:(UISlider *)slider;
 - (void)pauClick:(UITapGestureRecognizer *)e;
+- (void)touchScreen:(UIPanGestureRecognizer *)panGestureRecognizer;
 
 @end
 
@@ -38,7 +41,8 @@
 - (id)initWithFrame:(CGRect)frame withUrl:(NSURL *)url;
 - (void)changeToPlayBtn;
 - (void)changeToPauseBtn;
-
+- (CGFloat)getVolume;
+- (void)setVolume:(CGFloat)volume;
 - (void)deviceOrientationWithOrientation:(UIDeviceOrientation)orientation withFrame:(CGRect)frame;
 
 @end
